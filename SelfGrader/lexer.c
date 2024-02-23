@@ -26,7 +26,7 @@ Date Work Commenced: 08/02/2024
 // YOU CAN ADD YOUR OWN FUNCTIONS, DECLARATIONS AND VARIABLES HERE
 FILE *file;
 int LineCounter;
-const char* keywords[NUMBERKEYWORDS] = { "class", "method", "function", "construtor", "int", "boolean", "char", "void", "var"
+const char* keywords[NUMBERKEYWORDS] = { "class", "method", "function", "constructor", "int", "boolean", "char", "void", "var"
 					 , "static", "field", "let", "do", "if", "else", "while", "return", "true"
 					 , "false", "null", "this" };
 const char* symbols[NUMBERSYMBOLS] = { "{", "}", "(", ")", "[", "]", ".", ",", ";", "+"
@@ -73,7 +73,7 @@ Token GetNextToken ()
 	  c = getc(file);
 	}
     }
-
+    /*
   // check for comments
   else if (c == '/')
     {
@@ -94,20 +94,25 @@ Token GetNextToken ()
 	      if ((char) c == '\n' || (char) c == '/' ) LineCounter++;
 	    }
 	}
-    }
+    }*/
 
   // check alphabetic character
-  else if(isalpha(c))
+  if(isalpha(c) || c == '_')
     {
-      while(c != EOF && isalpha(c))
+      while(c != EOF && (isalpha(c) || isdigit(c) || c == '_'))
 	{
 	  temp[i++] = c;
 	  c = getc(file);
 	}
-      
-      temp[i] = '\0';
-      ungetc(c, file);
-      
+      if (isdigit(c) || isalpha(c) || c == '_') {
+	temp[i++] = c;
+	temp[i] = '\0';
+      }
+      else {
+	temp[i] = '\0';
+	ungetc(c, file);
+      }
+	
       strcpy(t.lx, temp);
       for (int j = 0; j < NUMBERKEYWORDS; j++)
 	{
@@ -179,9 +184,11 @@ int StopLexer ()
 int main ()
 {
   if (InitLexer("List.jack")) {
-    //Token t = GetNextToken();
-    printf("file name %s\n", t.fl);
-    exit(0);
+    t = GetNextToken();
+    while (t == NULL) {
+      printf ("<%s, %i, %s, %s>\n", t.fl, t.ln , t.lx, TokenTypeString (t.tp));
+      t = GetNextToken();
+    }
   }
   else
     exit(1);
